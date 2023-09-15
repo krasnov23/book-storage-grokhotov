@@ -1,0 +1,73 @@
+body{
+    background-color:black;
+    color: blanchedalmond;
+}
+
+.admin-button{
+    border: 2px solid gold;
+}
+
+.admin-buttons-group{
+    max-height: 200px;
+}
+
+.admin-content-block{
+    border: 2px solid gold;
+    border-radius: 10px;
+    height: 1000px;
+}
+
+.header-text{
+    padding-top: 80px;
+}
+
+.books-header{
+    height: 200px;
+}
+
+.book-image{
+    height: 200px;
+    width: 100%;
+}
+
+.book-image-user-main-page{
+    height: 300px;
+    width: 80%;
+}
+
+.header-link{
+    text-decoration: none;
+    color: whitesmoke;
+    text-shadow: gold 0 0 2px;
+}
+
+.header-link:hover{
+    color: gold
+}
+
+
+@media (max-width:768px) {
+
+    .admin-content-block{
+        margin-top: 6%;
+    }
+
+    .header-text{
+        padding-top: 40px;
+    }
+
+    .header-link-block{
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+
+    .block-with-book-description{
+        padding-bottom: 400px;
+    }
+}
+
+@media (min-width:768px) and (max-width:991px){
+    .header-link-block{
+        padding-bottom: 15px;
+    }
+}
