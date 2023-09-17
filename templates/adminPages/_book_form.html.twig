@@ -1,0 +1,34 @@
+<main class="row">
+    {{ include('adminPages/_admin_panel.html.twig') }}
+    <div class="col-lg-8 col-md-8 col-sm-12 admin-content-block pt-4 text-center row">
+        {{ form_start(form) }}
+
+        <div> {{ form_errors(form) }} </div>
+
+        <div class="mb-5">
+            {{ form_label(form.name,'Введите название книги',{'label_attr' : {'class' : 'form-label' }}) }}
+            {{ form_widget(form.name,{'attr': {'class' : 'form-control form-control-lg w-75 book-add-field'}}) }}
+        </div>
+
+        <div class="mb-5">
+            {{ form_label(form.amountOfPages,'Введите количество книг в странице', {'label_attr' : {'class' : 'form-label' }}) }}
+            {{ form_widget(form.amountOfPages,{'attr': {'class' : 'form-control form-control-lg w-75 book-add-field','type' : 'number'}}) }}
+        </div>
+
+        <div class="mb-5">
+            {{ form_label(form.isbn,'Введите isbn книги', {'label_attr' : {'class' : 'form-label' }}) }}
+            {{ form_widget(form.isbn,{'attr': {'class' : 'form-control form-control-lg w-75 book-add-field'}}) }}
+        </div>
+
+        <div class="mb-5">
+            {{ form_label(form.image) }}
+            {{ form_widget(form.image,{'attr' : {'class' : 'form-control form-control-lg w-75 book-add-field'}}) }}
+        </div>
+
+        <div>
+            <button type="submit" class="btn btn-outline-warning btn-lg admin-button w-50 mb-2">Cоздать книгу</button>
+        </div>
+
+        {{ form_end(form) }}
+    </div>
+</main>

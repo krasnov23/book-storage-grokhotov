@@ -20,10 +20,6 @@ body{
     padding-top: 80px;
 }
 
-.book-add-field{
-    margin-left: 15%;
-}
-
 .books-header{
     height: 200px;
 }
@@ -71,11 +67,6 @@ body{
 
     .block-with-book-description{
         padding-bottom: 400px;
-    }
-
-    .book-image-user-book-page{
-        height: 400px;
-        width: 70%;
     }
 }
 
