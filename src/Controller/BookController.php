@@ -22,7 +22,7 @@ class BookController extends AbstractController
     #[Route('/', name: 'app_main')]
     public function index(): Response
     {
-        return $this->render('userPages/main-page.html.twig', [
+        return $this->render('book/main-page.html.twig', [
             'books' => $this->bookEntityRepository->findAll()
         ]);
     }
@@ -30,7 +30,7 @@ class BookController extends AbstractController
     #[Route('/user/books/{book}', name: 'app_guest_book_page')]
     public function getBook(BookEntity $book): Response
     {
-        return $this->render('userPages/book-page.html.twig',[
+        return $this->render('book/book-page.html.twig',[
            'book' => $book
         ]);
     }
@@ -38,7 +38,7 @@ class BookController extends AbstractController
     #[Route('/admin/books', name: 'app_admin_books')]
     public function admin(): Response
     {
-        return $this->render('adminPages/index.html.twig', [
+        return $this->render('book/index.html.twig', [
             'books' => $this->bookEntityRepository->findAll()
         ]);
     }
@@ -84,7 +84,7 @@ class BookController extends AbstractController
             }
         }
 
-        return $this->render('adminPages/add-book.html.twig', ['form' => $form->createView()]);
+        return $this->render('book/add-book.html.twig', ['form' => $form->createView()]);
     }
 
     #[Route('/admin/books/edit/{book}', name: 'app_admin_books_edit')]
@@ -126,7 +126,7 @@ class BookController extends AbstractController
             }
         }
 
-        return $this->render('adminPages/edit-book.html.twig', ['form' => $form->createView()]);
+        return $this->render('book/edit-book.html.twig', ['form' => $form->createView()]);
     }
 
     #[Route('/admin/books/delete/{book}', name: 'app_admin_books_delete')]
