@@ -1,12 +1,21 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello FeedbackController!{% endblock %}
+{% block title %}Книжный магазин - все отзывы{% endblock %}
 
 {% block body %}
 <main class="row">
     {{ include('book/_admin_panel.html.twig') }}
     <div class="col-lg-8 col-md-8 col-sm-12 admin-content-block pt-4 text-center row">
-
+        {% for feedback in feedbacks %}
+            <div class="mb-5">
+                <p class="h3"> {{ feedback.email }} </p>
+                <p class="h3"> {{ feedback.name }} </p>
+                <p> {{ feedback.message }} </p>
+                <p class="h4"> {{ feedback.phoneNumber }} </p>
+                <p> {{ feedback.createdDate|date("m/d/Y") }} </p>
+                <a class="btn btn-outline-warning btn-lg admin-button w-75" href="{{ path('app_delete_feedback',{ feedback:feedback.id}) }}">Удалить отзыв</a>
+            </div>
+        {% endfor %}
     </div>
 </main>
 {% endblock %}

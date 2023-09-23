@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Книжный магазин - Вход в аккаунт {% endblock %}
+
+{% block body %}
+<main>
+    <form action="{{ path('app_authentication') }}" method="post" class="text-center">
+        <div class="mb-3 login-page-field">
+            <label for="exampleInputEmail1" class="form-label">Email</label>
+            <input type="email" class="form-control form-control-lg" id="exampleInputEmail1" aria-describedby="emailHelp" name="_username" value="{{ lastUsername }}">
+            <div id="emailHelp" class="form-text category-link">Введите ваш email для аутентификации</div>
+        </div>
+        <div class="mb-3 login-page-field">
+            <label for="exampleInputPassword1" class="form-label">Пароль</label>
+            <input type="password" class="form-control form-control-lg " id="exampleInputPassword1" name="_password">
+        </div>
+        <input type="hidden" name="_target_path" value="{{ path('app_books_by_pages') }}">
+        <button type="submit" class="btn btn-outline-warning btn-lg admin-button w-50 mb-2 mt-2">Вход в аккаунт</button>
+    </form>
+</main>
+{% endblock %}

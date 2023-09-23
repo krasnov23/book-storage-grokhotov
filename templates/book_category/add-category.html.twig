@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block title %} Книжный магазин - Добавить категорию{% endblock %}
+
+{% block body %}
+<main class="row">
+    {{ include('book/_admin_panel.html.twig') }}
+    <div class="col-lg-8 col-md-8 col-sm-12 admin-content-block pt-4 text-center row">
+        <p class="h2 mb-5">Создание категории</p>
+        <form method="post">
+            <label class="h5" for="field-category-name">Введите название категории / подкатегории</label>
+            <input required class="form-control form-control-lg w-75 book-add-field mb-3" id="field-category-name" name="field-category-name" type="text">
+            <label class="h5" for="field-parent-category-name">Введите название категории в которую хотите вложить подкатегорию (опционально)</label>
+            <select class="form-select form-select-lg mb-3 w-75 book-add-field" aria-label="Default select example" name="parent-category-name">
+                <option value=""></option>
+                {% for category in categories %}
+                <option value="{{ category.title }}">{{ category.title }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-outline-warning btn-lg admin-button w-50 mb-4">Cоздать книгу</button>
+        </form>
+    </div>
+</main>
+{% endblock %}

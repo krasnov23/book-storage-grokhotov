@@ -3,10 +3,22 @@
 {% block title %} Книжный магазин - Название книги{% endblock %}
 
 {% block body %}
-<div class="admin-content-block mt-2 pt-5 text-center ms-5 me-5">
-    <img class="book-image-user-book-page" src="{{ book.image }}" alt="обложка">
-    <h2>{{ book.name }}</h2>
-    <p>{{ book.amountOfPages }}</p>
-    <p>{{ book.isbn }}</p>
-</div>
+<main>
+    <div class="admin-content-block mt-2 pt-5 text-center ms-5 me-5 ">
+        {% if book.image|slice(0,8) == 'https://' or book.image|slice(0,7) == 'http://' %}
+        <div class="text-center">
+            <img class="book-image-user-book-page rounded pb-3" src="{{ book.image }}" alt="обложка">
+        </div>
+        {% else %}
+        <div class="text-center ">
+            <img class="book-image-user-book-page rounded mb-5" src="{{ book_image ~ book.image }}" alt="обложка">
+        <div>
+        {% endif %}
+        <div class="text-center">
+        <h2>{{ book.name }}</h2>
+        <p>{{ book.amountOfPages }}</p>
+        <p>{{ book.isbn }}</p>
+        </div>
+    </div>
+</main>
 {% endblock %}

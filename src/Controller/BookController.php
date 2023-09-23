@@ -4,7 +4,11 @@ namespace App\Controller;
 
 use App\Entity\BookEntity;
 use App\Form\BookEntityType;
+use App\Repository\BookCategoryEntityRepository;
 use App\Repository\BookEntityRepository;
+use App\Service\BookEntityService;
+use Doctrine\Common\Collections\Criteria;
+use ErrorException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,19 +19,32 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 class BookController extends AbstractController
 {
     public function __construct(private BookEntityRepository $bookEntityRepository,
-                                private SluggerInterface $slugger)
+                                private BookEntityService    $bookService,
+                                private SluggerInterface     $slugger,
+                                private BookCategoryEntityRepository $categoryEntityRepository)
     {
     }
 
     #[Route('/', name: 'app_main')]
     public function index(): Response
     {
-        return $this->render('book/main-page.html.twig', [
-            'books' => $this->bookEntityRepository->findAll()
+        return $this->redirectToRoute('app_books_by_pages');
+    }
+
+    #[Route('/page-books/{pageNumber<\d+>?1}', name: 'app_books_by_pages')]
+    public function getBookByPage(int $pageNumber): Response
+    {
+        $booksPagination = $this->bookService->getBooksByPage($pageNumber);
+
+        return $this->render('book/main-page.html.twig',[
+            'books' => $booksPagination[0],
+            'currentPage' => $pageNumber,
+            'lastPage' => $booksPagination[1]
         ]);
     }
 
-    #[Route('/user/books/{book}', name: 'app_guest_book_page')]
+
+    #[Route('/books/{book}', name: 'app_guest_book_page')]
     public function getBook(BookEntity $book): Response
     {
         return $this->render('book/book-page.html.twig',[
@@ -54,8 +71,23 @@ class BookController extends AbstractController
 
         if ($form->isSubmitted() and $form->isValid())
         {
+
             // bookimage - HttpFoundation\UploadedFile
             $bookImage = $form->get('image')->getData();
+
+            try{
+                $categoriesFromForm = $request->request->all()['category-for-book'];
+                $bookCategories = $this->categoryEntityRepository->findBy(['title' => $categoriesFromForm]);
+
+                foreach ($bookCategories as $category)
+                {
+                    $book->addCategory($category);
+                }
+            }catch (ErrorException)
+            {
+                $categoriesFromForm = null;
+            }
+
 
             if ($bookImage)
             {
@@ -84,11 +116,13 @@ class BookController extends AbstractController
             }
         }
 
-        return $this->render('book/add-book.html.twig', ['form' => $form->createView()]);
+        return $this->render('book/add-book.html.twig', [
+            'form' => $form->createView(),
+            'categories' => $this->categoryEntityRepository->findBy([],['level' => Criteria::ASC])]);
     }
 
     #[Route('/admin/books/edit/{book}', name: 'app_admin_books_edit')]
-    public function editBook(Request $request,BookEntity $book): Response
+    public function editBook(Request $request, BookEntity $book): Response
     {
         $form = $this->createForm(BookEntityType::class,$book);
 
@@ -126,7 +160,8 @@ class BookController extends AbstractController
             }
         }
 
-        return $this->render('book/edit-book.html.twig', ['form' => $form->createView()]);
+        return $this->render('book/edit-book.html.twig', ['form' => $form->createView(),
+            'categories' => $this->categoryEntityRepository->findBy([],['level' => Criteria::ASC])]);
     }
 
     #[Route('/admin/books/delete/{book}', name: 'app_admin_books_delete')]

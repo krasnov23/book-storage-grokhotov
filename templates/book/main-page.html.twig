@@ -3,9 +3,12 @@
 {% block title %} Книжный магазин - Главная страница{% endblock %}
 
 {% block body %}
+<main>
+    {% if app.user and 'ROLE_ADMIN' in app.user.getroles()  %}
     <div class="text-center">
         <a class="btn btn-outline-warning btn-lg admin-button w-75" href="{{ path('app_admin_books') }}">Админ Панель</a>
     </div>
+    {% endif %}
     <div class="admin-content-block mt-2 pt-5 text-center row ms-5 me-5">
     {% for book in books %}
         {% if book.image|slice(0,8) == 'https://' or book.image|slice(0,7) == 'http://' %}
@@ -24,4 +27,15 @@
         </div>
     {% endfor %}
     </div>
+    <div class="btn-toolbar mt-5 mb-5 d-flex" role="toolbar" aria-label="Toolbar with button groups">
+        <div class="btn-group mr-2 text-center center-block books-pages-switchers" role="group" aria-label="First group">
+            {% if (currentPage > 1) %}
+            <a class="btn btn-warning btn-lg " href="{{ path('app_books_by_pages',{pageNumber: currentPage - 1 }) }}"><<<</a>
+            {% endif %}
+            <a class="btn btn-warning btn-lg " href="">{{ currentPage }}</a>
+            <a class="btn btn-warning btn-lg" href="{{ path('app_books_by_pages',{pageNumber: currentPage + 1  }) }}">>>></a>
+            <a class="btn btn-warning btn-lg" href="{{ path('app_books_by_pages',{pageNumber: lastPage  }) }}">Последняя страница</a>
+        </div>
+    </div>
+</main>
 {% endblock %}

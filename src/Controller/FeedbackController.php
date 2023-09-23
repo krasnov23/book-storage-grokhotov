@@ -5,7 +5,9 @@ namespace App\Controller;
 use App\Entity\FeedbackEntity;
 use App\Form\FeedbackEntityType;
 use App\Repository\FeedbackEntityRepository;
+use App\Service\FeedbackService;
 use DateTime;
+use Doctrine\Common\Collections\Criteria;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,7 +15,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class FeedbackController extends AbstractController
 {
-    public function __construct(private FeedbackEntityRepository $feedbackRepository)
+    public function __construct(private FeedbackEntityRepository $feedbackRepository,
+                                private FeedbackService $feedbackService)
     {
     }
 
@@ -21,7 +24,7 @@ class FeedbackController extends AbstractController
     public function index(): Response
     {
         return $this->render('feedback/get-all-feedbacks.html.twig', [
-            'controller_name' => 'FeedbackController',
+            'feedbacks' => $this->feedbackRepository->findBy([],['createdDate' => Criteria::DESC])
         ]);
     }
 
@@ -34,21 +37,28 @@ class FeedbackController extends AbstractController
 
         if ($form->isSubmitted() and $form->isValid())
         {
-            $feedback = $form->getData();
+            $feedback = $this->feedbackService->addFeedback($form->getData());
 
-            $feedback->setCreatedDate(new DateTime());
+            $this->addFlash($feedback[0],$feedback[1]);
 
-            $this->feedbackRepository->save($feedback,true);
-
-            $this->addFlash('success','Ваш отзыв отправлен');
-
-            return $this->redirectToRoute('app_main');
+            return $this->redirectToRoute($feedback[2]);
         }
 
-            return  $this->render('feedback/create-feedback.html.twig',[
+            return $this->render('feedback/create-feedback.html.twig',[
             'form' => $form->createView()
         ]);
     }
+
+    #[Route('/delete-feedback/{feedback}', name: 'app_delete_feedback')]
+    public function delete(FeedbackEntity $feedback): Response
+    {
+        $this->feedbackRepository->remove($feedback,true);
+
+        $this->addFlash('success','Отзыв Успешно Удален');
+
+        return $this->redirectToRoute('app_feedbacks');
+    }
+
 
 
 

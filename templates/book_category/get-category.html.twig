@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %} Книжный магазин - {{ category }} {% endblock %}
+
+{% block body %}
+<main class="text-center">
+    <p class="h2">{{ category }}</p>
+    {% if category.categoryChild|length > 0 %}
+        {% for childCategory in category.categoryChild %}
+        <a class="h4 pb-5" href="{{ path('app_book_category_show_one',{ categoryId: childCategory.Id }) }}">{{ childCategory }}</a>
+        <br>
+        {% endfor %}
+    {% else %}
+        {% for book in category.books %}
+        <a class="h4" href="{{ path('app_guest_book_page',{ book:book.id }) }}">{{ book }}</a>
+        <br>
+        {% endfor %}
+    {% endif %}
+</main>
+{% endblock %}

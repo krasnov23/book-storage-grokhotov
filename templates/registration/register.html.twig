@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Register{% endblock %}
+
+{% block body %}
+<main class="text-center">
+    {% for flash_error in app.flashes('verify_email_error') %}
+        <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
+    {% endfor %}
+
+    <h2 class="mb-5">Регистрация</h2>
+
+    {{ form_errors(registrationForm) }}
+
+    {{ form_start(registrationForm) }}
+
+    <div class="mb-5">
+        {{ form_label(registrationForm.email,'Введите свой email', {'label_attr' : {'class' : 'form-label h5' }}) }}
+        {{ form_widget(registrationForm.email,{'attr': {'class' : 'form-control form-control-lg w-75 book-add-field'}}) }}
+        {{ form_errors(registrationForm.email) }}
+    </div>
+
+    <div class="mb-5">
+        {{ form_label(registrationForm.plainPassword.first,'Введите пароль', {'label_attr' : {'class' : 'form-label h5' }}) }}
+        {{ form_widget(registrationForm.plainPassword.first,{'attr': {'class' : 'form-control form-control-lg w-75 book-add-field'}}) }}
+        {{ form_errors(registrationForm.plainPassword.first) }}
+    </div>
+
+    <div class="mb-5">
+        {{ form_label(registrationForm.plainPassword.second,'Повторите пароль', {'label_attr' : {'class' : 'form-label h5' }}) }}
+        {{ form_widget(registrationForm.plainPassword.second,{'attr': {'class' : 'form-control form-control-lg w-75 book-add-field'}}) }}
+        {{ form_errors(registrationForm.plainPassword.second) }}
+    </div>
+
+    <div>
+        <button type="submit" class="btn btn-outline-warning btn-lg admin-button w-50 mb-5">Регистрация</button>
+    </div>
+    {{ form_end(registrationForm) }}
+</main>
+{% endblock %}

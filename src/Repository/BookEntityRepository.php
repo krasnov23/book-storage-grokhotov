@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\BookEntity;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -38,6 +39,18 @@ class BookEntityRepository extends ServiceEntityRepository
             $this->getEntityManager()->flush();
         }
     }
+
+    public function bookPagination(int $offset,int $limit)
+    {
+        $query = $this->createQueryBuilder('b')
+            ->orderBy('b.id','DESC')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit);
+
+        return new Paginator($query,false);
+    }
+
+
 
 //    /**
 //     * @return BookEntity[] Returns an array of BookEntity objects

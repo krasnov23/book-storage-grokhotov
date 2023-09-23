@@ -20,6 +20,10 @@ body{
     padding-top: 80px;
 }
 
+.book-add-field{
+    margin-left: 15%;
+}
+
 .books-header{
     height: 200px;
 }
@@ -27,6 +31,12 @@ body{
 .book-image{
     height: 200px;
     width: 100%;
+}
+
+.book-image-book-page{
+    height:300px;
+    width: 50%;
+
 }
 
 .book-image-user-main-page{
@@ -39,6 +49,35 @@ body{
     width: 50%;
 }
 
+.book-image-page-block{
+    padding: 10% 20%;
+}
+
+.books-pages-switchers{
+    margin-left: 40%;
+}
+
+.book-page-block{
+    text-align: center;
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.category-link{
+    text-decoration: none;
+    color: whitesmoke;
+    text-shadow: darkred 0 0 4px;
+}
+
+.category-link:hover{
+    color: gold;
+}
+
+
+.get-category-block{
+    margin-left: 12%;
+}
+
 .header-link{
     text-decoration: none;
     color: whitesmoke;
@@ -46,7 +85,12 @@ body{
 }
 
 .header-link:hover{
-    color: gold
+    color: gold;
+}
+
+.login-page-field{
+    padding-right: 20%;
+    padding-left: 20%;
 }
 
 
@@ -67,6 +111,11 @@ body{
 
     .block-with-book-description{
         padding-bottom: 400px;
+    }
+
+    .book-image-user-book-page{
+        height: 400px;
+        width: 70%;
     }
 }
 
