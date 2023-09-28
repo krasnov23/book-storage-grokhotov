@@ -28,16 +28,11 @@ class BookEntityService
 
         $paginator = $this->bookEntityRepository->bookPagination($offset,$pageLimit);
 
-        $paginatorArray = [];
+        $totalAmountOfBooks = count($paginator);
 
-        foreach ($paginator as $item)
-        {
-            $paginatorArray[] = $item;
-        }
+        $total = ceil($totalAmountOfBooks / $pageLimit);
 
-        $total = ceil(count($paginatorArray) / $pageLimit);
-
-        return [$paginatorArray,$total];
+        return [$paginator,$total];
     }
 
     public function getBooksByCategoryAndPages(int $id, int $page): array
@@ -54,16 +49,9 @@ class BookEntityService
 
         $paginator = $this->bookEntityRepository->booksByCategoryAndPages($id,$offset,$pageLimit);
 
-        $paginatorArray = [];
+        $totalPages = ceil(count($paginator) / $pageLimit);
 
-        foreach ($paginator as $item)
-        {
-            $paginatorArray[] = $item;
-        }
-
-        $totalPages = ceil(count($paginatorArray) / $pageLimit);
-
-        return [$paginatorArray,$totalPages];
+        return [$paginator,$totalPages];
     }
 
 

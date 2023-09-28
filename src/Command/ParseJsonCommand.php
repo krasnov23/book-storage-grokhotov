@@ -19,7 +19,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(
     name: 'app:parse-json',
-    description: 'Add a short description for your command',
+    description: 'Parse from data from json file',
 )]
 class ParseJsonCommand extends Command
 {
