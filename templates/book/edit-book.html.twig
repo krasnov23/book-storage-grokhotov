@@ -3,5 +3,74 @@
 {% block title %}Книжный магазин - Редактирование книги {% endblock %}
 
 {% block body %}
-    {{ include('book/_book_form.html.twig') }}
+    {% extends 'base.html.twig' %}
+
+    {% block title %}Книжный магазин - Добавление книги {% endblock %}
+
+    {% block body %}
+        <main class="row">
+            {{ include('book/_admin_panel.html.twig') }}
+            <div class="col-lg-8 col-md-8 col-sm-12 admin-content-block pt-4 text-center row">
+                {{ form_start(form) }}
+
+                <div class="mb-5">
+                    {{ form_label(form.name,'Введите название книги',{'label_attr' : {'class' : 'form-label' }}) }}
+                    {{ form_widget(form.name,{'attr': {'class' : 'form-control form-control-lg w-75 book-add-field'}}) }}
+                    {{ form_errors(form.name) }}
+                </div>
+
+                <div class="mb-5">
+                    {{ form_label(form.amountOfPages,'Введите количество книг в странице', {'label_attr' : {'class' : 'form-label' }}) }}
+                    {{ form_widget(form.amountOfPages,{'attr': {'class' : 'form-control form-control-lg w-75 book-add-field','type' : 'number'}}) }}
+                    {{ form_errors(form.amountOfPages) }}
+                </div>
+
+                <div class="mb-5">
+                    {{ form_label(form.isbn,'Введите isbn книги', {'label_attr' : {'class' : 'form-label' }}) }}
+                    {{ form_widget(form.isbn,{'attr': {'class' : 'form-control form-control-lg w-75 book-add-field'}}) }}
+                    {{ form_errors(form.isbn) }}
+                </div>
+
+                <div class="mb-5">
+                    {{ form_label(form.image) }}
+                    {{ form_widget(form.image,{'attr' : {'class' : 'form-control form-control-lg w-75 book-add-field'}}) }}
+                    {{ form_errors(form.image) }}
+                    {% if book.image %}
+                        <a  class="btn btn-outline-warning btn-lg admin-button w-50 mb-2 mt-2" href="{{ path('app_admin_books_image_delete',{ book: book.id }) }}">Удалить картинку</a>
+                    {% endif %}
+                </div>
+
+
+
+                <div class="mb-5">
+                    {{ form_label(form.status) }}
+
+                    <select name="{{ field_name(form.status) }}" class="form-control form-control-lg w-75 book-add-field">
+                        {% for label, value in field_choices(form.status) %}
+                            <option value="{{ value }}">{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    {{ form_label(form.categories,'Выберите категорию для книги') }}
+                    <br>
+
+                    {% for category in form.categories %}
+                        {{ form_label(category) }}
+                        {{ form_widget(category) }}
+                        <br>
+                    {% endfor %}
+
+                </div>
+
+                <div>
+                    <button type="submit" class="btn btn-outline-warning btn-lg admin-button w-50 mb-2 mt-2">Редактировать книгу</button>
+                </div>
+
+                {{ form_end(form) }}
+
+            </div>
+        </main>
+    {% endblock %}
 {% endblock %}

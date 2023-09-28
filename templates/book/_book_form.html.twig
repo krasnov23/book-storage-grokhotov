@@ -3,8 +3,6 @@
     <div class="col-lg-8 col-md-8 col-sm-12 admin-content-block pt-4 text-center row">
         {{ form_start(form) }}
 
-        <div> {{ form_errors(form) }} </div>
-
         <div class="mb-5">
             {{ form_label(form.name,'Введите название книги',{'label_attr' : {'class' : 'form-label' }}) }}
             {{ form_widget(form.name,{'attr': {'class' : 'form-control form-control-lg w-75 book-add-field'}}) }}
@@ -27,24 +25,37 @@
             {{ form_label(form.image) }}
             {{ form_widget(form.image,{'attr' : {'class' : 'form-control form-control-lg w-75 book-add-field'}}) }}
             {{ form_errors(form.image) }}
+                {% if book.image %}
+                    <a  class="btn btn-outline-warning btn-lg admin-button w-50 mb-2 mt-2" href="{{ path('app_admin_books_image_delete',{ book: book.id }) }}">Удалить картинку</a>
+                {% endif %}
         </div>
 
-        <div>
-            <p class="h3 pb-3">Выберите категории для книги </p>
 
-            <div class="form-check">
-                {% for category in categories %}
-                    <input class="form-check-input text-center" type="checkbox" name="category-for-book[]" value="{{ category }}" id="flexCheckDefault">
-                    <label class="form-check-label mb-2 text-center" for="flexCheckDefault">
-                        {{ category }}
-                    </label>
-                    <br>
+        
+        <div class="mb-5">
+            {{ form_label(form.status) }}
+
+            <select name="{{ field_name(form.status) }}" class="form-control form-control-lg w-75 book-add-field">
+                {% for label, value in field_choices(form.status) %}
+                    <option value="{{ value }}">{{ label }}</option>
                 {% endfor %}
-            </div>
+            </select>
         </div>
 
         <div>
-            <button type="submit" class="btn btn-outline-warning btn-lg admin-button w-50 mb-2 mt-2">Cоздать книгу</button>
+            {{ form_label(form.categories,'Выберите категорию для книги') }}
+            <br>
+
+            {% for category in form.categories %}
+                {{ form_label(category) }}
+                {{ form_widget(category) }}
+                <br>
+            {% endfor %}
+
+        </div>
+
+        <div>
+            <button type="submit" class="btn btn-outline-warning btn-lg admin-button w-50 mb-2 mt-2">Подтвердить</button>
         </div>
 
         {{ form_end(form) }}

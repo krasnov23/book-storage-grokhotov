@@ -15,7 +15,7 @@ class BookCategoryEntity
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255,unique: true)]
+    #[ORM\Column(length: 255)]
     private ?string $title = null;
 
     #[ORM\ManyToMany(targetEntity: BookEntity::class, inversedBy: 'categories')]
@@ -30,6 +30,8 @@ class BookCategoryEntity
 
     #[ORM\OneToMany(mappedBy: 'parentCategory', targetEntity: self::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $categoryChild;
+
+
 
     public function __construct()
     {

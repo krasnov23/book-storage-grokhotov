@@ -78,5 +78,19 @@ class CategoryEntityService
         return ['success','Категория успешно добавлена','app_book_category_list_admin'];
     }
 
+    /**
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws \Doctrine\ORM\NoResultException
+     */
+    public function getCategoryWithFilterBooks(Request $request, int $categoryId)
+    {
+        $requestData = $request->request->all();
+        //dd($requestData);
+
+        return $this->categoryEntityRepository->getBooksAndSubcategoryByCategory($categoryId,
+            $requestData['book-name'],$requestData['author-name'],$requestData['book-status']);
+    }
+
+
 
 }

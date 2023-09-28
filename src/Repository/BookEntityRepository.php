@@ -4,6 +4,8 @@ namespace App\Repository;
 
 use App\Entity\BookEntity;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -49,6 +51,46 @@ class BookEntityRepository extends ServiceEntityRepository
 
         return new Paginator($query,false);
     }
+
+    public function booksByCategoryAndPages(int $categoryId,int $offset,int $limit): Paginator
+    {
+        $query = $this->createQueryBuilder('b')
+            ->addSelect('c')
+            ->leftJoin('b.categories','c')
+            ->where('c.id = :id')
+            ->setParameter('id',$categoryId)
+            ->setFirstResult($offset)
+            ->setMaxResults($limit);
+
+        return new Paginator($query,false);
+    }
+
+    /**
+     * @throws NonUniqueResultException
+     * @throws NoResultException
+     */
+    public function getBookWithCategories(int $bookId): BookEntity
+    {
+        return $this->createQueryBuilder('b')
+            ->addSelect('c')
+            ->leftJoin('b.categories','c')
+            ->where('b.id = :id')
+            ->setParameter('id',$bookId)
+            ->getQuery()->getSingleResult();
+
+    }
+
+    public function getBookWithSameCategories(array $categories): array
+    {
+        $query =  $this->createQueryBuilder('b')
+            ->addSelect('c')
+            ->leftJoin('b.categories','c')
+            ->where('c.id IN (:categories)')
+            ->setParameter('categories',$categories);
+
+        return $query->getQuery()->getArrayResult();
+    }
+
 
 
 

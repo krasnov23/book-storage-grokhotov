@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\BookEntityRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 // Назвал BookEntity, для того чтобы не было конфликта, т.к Book уже есть на моем компьютере
@@ -19,21 +20,37 @@ class BookEntity
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $image = null;
 
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?int $amountOfPages = null;
 
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?string $isbn = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $status = null;
 
     #[ORM\ManyToMany(targetEntity: BookCategoryEntity::class, mappedBy: 'books',cascade: ['persist'])]
     private Collection $categories;
 
+    #[ORM\ManyToMany(targetEntity: AuthorEntity::class, mappedBy: 'books',cascade: ['persist'])]
+    private Collection $authors;
+
+    #[ORM\Column(length: 2000, nullable: true)]
+    private ?string $shortDescription = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $longDescription = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $publishedDate = null;
+
     public function __construct()
     {
         $this->categories = new ArrayCollection();
+        $this->authors = new ArrayCollection();
     }
 
     public function __toString(): string
@@ -63,7 +80,7 @@ class BookEntity
         return $this->image;
     }
 
-    public function setImage(string $image): static
+    public function setImage(?string $image): static
     {
         $this->image = $image;
 
@@ -75,7 +92,7 @@ class BookEntity
         return $this->amountOfPages;
     }
 
-    public function setAmountOfPages(int $amountOfPages): static
+    public function setAmountOfPages(?int $amountOfPages): static
     {
         $this->amountOfPages = $amountOfPages;
 
@@ -117,6 +134,81 @@ class BookEntity
         if ($this->categories->removeElement($category)) {
             $category->removeBook($this);
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AuthorEntity>
+     */
+    public function getAuthors(): Collection
+    {
+        return $this->authors;
+    }
+
+    public function addAuthor(AuthorEntity $author): static
+    {
+        if (!$this->authors->contains($author)) {
+            $this->authors->add($author);
+            $author->addBook($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAuthor(AuthorEntity $author): static
+    {
+        if ($this->authors->removeElement($author)) {
+            $author->removeBook($this);
+        }
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): static
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getShortDescription(): ?string
+    {
+        return $this->shortDescription;
+    }
+
+    public function setShortDescription(?string $shortDescription): static
+    {
+        $this->shortDescription = $shortDescription;
+
+        return $this;
+    }
+
+    public function getLongDescription(): ?string
+    {
+        return $this->longDescription;
+    }
+
+    public function setLongDescription(?string $longDescription): static
+    {
+        $this->longDescription = $longDescription;
+
+        return $this;
+    }
+
+    public function getPublishedDate(): ?\DateTimeInterface
+    {
+        return $this->publishedDate;
+    }
+
+    public function setPublishedDate(?\DateTimeInterface $publishedDate): static
+    {
+        $this->publishedDate = $publishedDate;
 
         return $this;
     }

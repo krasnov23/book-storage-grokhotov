@@ -2,15 +2,19 @@
 
 namespace App\Controller;
 
+use App\Entity\BookCategoryEntity;
 use App\Entity\BookEntity;
 use App\Form\BookEntityType;
 use App\Repository\BookCategoryEntityRepository;
 use App\Repository\BookEntityRepository;
 use App\Service\BookEntityService;
 use Doctrine\Common\Collections\Criteria;
+use Doctrine\ORM\PersistentCollection;
 use ErrorException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -21,7 +25,7 @@ class BookController extends AbstractController
     public function __construct(private BookEntityRepository $bookEntityRepository,
                                 private BookEntityService    $bookService,
                                 private SluggerInterface     $slugger,
-                                private BookCategoryEntityRepository $categoryEntityRepository)
+                                private Filesystem $filesystem)
     {
     }
 
@@ -44,11 +48,27 @@ class BookController extends AbstractController
     }
 
 
-    #[Route('/books/{book}', name: 'app_guest_book_page')]
-    public function getBook(BookEntity $book): Response
+    #[Route('/books/{bookId}', name: 'app_guest_book_page')]
+    public function getBook(int $bookId): Response
     {
+        $book = $this->bookEntityRepository->getBookWithCategories($bookId);
+
         return $this->render('book/book-page.html.twig',[
-           'book' => $book
+            'book' => $book,
+            'sameCategoriesBooks' => $this->bookEntityRepository->getBookWithSameCategories($book->getCategories()->toArray())
+        ]);
+    }
+
+    #[Route('/books/{categoryId}/{pageNumber}', name: 'app_guest_book_by_category')]
+    public function getBookByCategory(int $categoryId,int $pageNumber): Response
+    {
+        $books = $this->bookService->getBooksByCategoryAndPages($categoryId,$pageNumber);
+
+        return $this->render('book/book-by-category-page.html.twig',[
+            'books' => $books[0],
+            'lastPage' => $books[1],
+            'currentPage' => $pageNumber,
+            'categoryId' => $categoryId
         ]);
     }
 
@@ -71,22 +91,25 @@ class BookController extends AbstractController
 
         if ($form->isSubmitted() and $form->isValid())
         {
+            /**
+             * @var BookEntity $newBook
+             */
+            $newBook = $form->getData();
+
+            $categories = $form->get('categories')->getData()->toArray();
+
+            foreach ($categories as $category)
+            {
+                /**
+                 * @var BookCategoryEntity $category
+                 */
+                //$category->addBook($newBook);
+
+                $newBook->addCategory($category);
+            }
 
             // bookimage - HttpFoundation\UploadedFile
             $bookImage = $form->get('image')->getData();
-
-            try{
-                $categoriesFromForm = $request->request->all()['category-for-book'];
-                $bookCategories = $this->categoryEntityRepository->findBy(['title' => $categoriesFromForm]);
-
-                foreach ($bookCategories as $category)
-                {
-                    $book->addCategory($category);
-                }
-            }catch (ErrorException)
-            {
-                $categoriesFromForm = null;
-            }
 
 
             if ($bookImage)
@@ -106,31 +129,44 @@ class BookController extends AbstractController
                 {
                 }
 
-                $book->setImage($newFileName);
-
-                $this->bookEntityRepository->save($book,true);
-
-                $this->addFlash('success','Книга Успешно Добавлена');
-
-                return $this->redirectToRoute('app_admin_books');
+                $newBook->setImage($newFileName);
             }
+
+            $this->bookEntityRepository->save($newBook,true);
+
+            $this->addFlash('success','Книга Успешно Добавлена');
+
+            return $this->redirectToRoute('app_admin_books');
         }
 
         return $this->render('book/add-book.html.twig', [
-            'form' => $form->createView(),
-            'categories' => $this->categoryEntityRepository->findBy([],['level' => Criteria::ASC])]);
+            'form' => $form->createView()
+        ]);
     }
 
     #[Route('/admin/books/edit/{book}', name: 'app_admin_books_edit')]
     public function editBook(Request $request, BookEntity $book): Response
     {
         $form = $this->createForm(BookEntityType::class,$book);
+        $bookOldImage = $book->getImage();
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() and $form->isValid())
         {
-            // bookimage - HttpFoundation\UploadedFile
+            /**
+             * @var PersistentCollection $categories
+             */
+            $categoriesData = $form->get('categories')->getData();
+
+            $categories = $categoriesData->toArray();
+
+            foreach ($categories as $category)
+            {
+                $book->addCategory($category);
+            }
+
+            /** @var UploadedFile $bookImage */
             $bookImage = $form->get('image')->getData();
 
             if ($bookImage)
@@ -150,18 +186,25 @@ class BookController extends AbstractController
                 {
                 }
 
+                $this->filesystem->remove($this->getParameter('books_image_directory') . DIRECTORY_SEPARATOR . $bookOldImage);
+
                 $book->setImage($newFileName);
 
-                $this->bookEntityRepository->save($book,true);
-
-                $this->addFlash('success','Книга Успешно Изменена');
-
-                return $this->redirectToRoute('app_admin_books');
+            }else{
+                $book->setImage($bookOldImage);
             }
+
+            $this->bookEntityRepository->save($book,true);
+
+            $this->addFlash('success','Книга Успешно Изменена');
+
+            return $this->redirectToRoute('app_admin_books');
         }
 
-        return $this->render('book/edit-book.html.twig', ['form' => $form->createView(),
-            'categories' => $this->categoryEntityRepository->findBy([],['level' => Criteria::ASC])]);
+        return $this->render('book/edit-book.html.twig', [
+            'form' => $form->createView(),
+            'book' => $book
+            ]);
     }
 
     #[Route('/admin/books/delete/{book}', name: 'app_admin_books_delete')]
@@ -170,6 +213,25 @@ class BookController extends AbstractController
         $this->bookEntityRepository->remove($book,true);
 
         $this->addFlash('success','Книга Успешно Удалена');
+
+        return $this->redirectToRoute('app_admin_books');
+    }
+
+    #[Route('/admin/books/delete-image/{book}', name: 'app_admin_books_image_delete')]
+    public function deleteBookPhoto(BookEntity $book): Response
+    {
+        $bookImage = $book->getImage();
+
+        if ($bookImage)
+        {
+            $this->filesystem->remove($this->getParameter('books_image_directory') . DIRECTORY_SEPARATOR . $bookImage);
+        }
+
+        $book->setImage(null);
+
+        $this->bookEntityRepository->save($book,true);
+
+        $this->addFlash('success','Картинка книги успешно удалена');
 
         return $this->redirectToRoute('app_admin_books');
     }

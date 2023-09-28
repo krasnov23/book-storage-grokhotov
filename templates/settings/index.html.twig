@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Книжный магазин - Настройки {% endblock %}
+
+{% block body %}
+<main class="row">
+    {{ include('book/_admin_panel.html.twig') }}
+    <div class="col-lg-8 col-md-8 col-sm-12 admin-content-block pt-4 text-center">
+        {{ form_start(form,{'attr':{'novalidate':'novalidate'}}) }}
+
+        <div class="mb-5">
+            {{ form_label(form.amountBookPagination,'Введите количество книг которое будет выводить на странице', {'label_attr' : {'class' : 'form-label' }}) }}
+            {{ form_widget(form.amountBookPagination,{'attr': {'class' : 'form-control form-control-lg w-75 book-add-field','type' : 'number'}}) }}
+            {{ form_errors(form.amountBookPagination) }}
+        </div>
+
+        <div class="mb-5">
+            {{ form_label(form.adminEmail,'Введите email с которого будут отправляться письма', {'label_attr' : {'class' : 'form-label' }}) }}
+            {{ form_widget(form.adminEmail,{'attr': {'class' : 'form-control form-control-lg w-75 book-add-field'}}) }}
+            {{ form_errors(form.adminEmail) }}
+        </div>
+
+        <div class="mb-5">
+            {{ form_label(form.sourceJson,'Укажите путь к источнику для парсинга') }}
+            {{ form_widget(form.sourceJson,{'attr' : {'class' : 'form-control form-control-lg w-75 book-add-field'}}) }}
+            {{ form_errors(form.sourceJson) }}
+        </div>
+
+        <div>
+            <button type="submit" class="btn btn-outline-warning btn-lg admin-button w-50 mb-2 mt-2">Cоздать книгу</button>
+        </div>
+        {{ form_end(form) }}
+    </div>
+</main>
+{% endblock %}

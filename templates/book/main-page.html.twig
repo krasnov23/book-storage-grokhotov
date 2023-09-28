@@ -21,7 +21,7 @@
             </div>
         {% endif %}
         <div class="col-lg-7 col-md-7 block-with-book-description pt-4">
-            <h2><a href="{{ path('app_guest_book_page',{ book:book.id}) }}">{{ book.name }}</a></h2>
+            <h2><a href="{{ path('app_guest_book_page',{ bookId:book.id}) }}">{{ book.name }}</a></h2>
             <p>{{ book.amountOfPages }}</p>
             <p>{{ book.isbn }}</p>
         </div>

@@ -6,6 +6,7 @@ use App\Entity\BookCategoryEntity;
 use App\Entity\BookEntity;
 use App\Models\QueryBuilder;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -41,28 +42,55 @@ class BookCategoryEntityRepository extends ServiceEntityRepository
         }
     }
 
-    public function getAllHighLevelCategories(int $level): array
+    public function getAllHighLevelCategories(int $level,string $bookName = '',string $authorName = '',string $bookStatus = ''): array
     {
-        $categories = $this->createQueryBuilder('c')
+        return $this->createQueryBuilder('c')
+            ->addSelect('b')
+            ->leftJoin('c.books','b')
             ->where('c.level = :level')
             ->setParameter('level',$level)
             ->getQuery()->getArrayResult();
-
-        return $categories;
     }
 
-    public function getBooksAndSubcategoryByCategory(int $id): BookCategoryEntity
+    /**
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws \Doctrine\ORM\NoResultException
+     */
+    public function getBooksAndSubcategoryByCategory(int $id, string $bookName = '', string $authorBook = '', string $bookStatus = ''): ?BookCategoryEntity
     {
-        return $this->createQueryBuilder('c')
+        $category = $this->createQueryBuilder('c')
             ->addSelect('cc')
             ->leftJoin('c.categoryChild','cc')
             ->addSelect('b')
             ->leftJoin('c.books','b')
             ->where('c.id = :id')
-            ->setParameter('id',$id)
-            ->getQuery()->getSingleResult();
+            ->setParameter('id',$id);
 
+        if ($bookName)
+        {
+            $category->andWhere('b.name = :name')
+                ->setParameter('name',$bookName);
+        }
+
+        if ($bookStatus)
+        {
+            $category->andWhere('b.status = :status')
+                ->setParameter('status',$bookStatus);
+
+        }
+
+        if ($authorBook)
+        {
+            $category->addSelect('a')
+                ->leftJoin('b.authors','a')
+                ->andWhere('a.name = :authorName')
+                ->setParameter('authorName',$authorBook);
+        }
+
+        return $category->getQuery()->getOneOrNullResult();
     }
+
+
 
 
 

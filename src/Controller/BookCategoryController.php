@@ -21,14 +21,22 @@ class BookCategoryController extends AbstractController
     #[Route('/categories/all-categories', name: 'app_book_category_list')]
     public function index(): Response
     {
+
         return $this->render('book_category/get-categories.html.twig', [
             'categories' => $this->bookCategoryRepository->getAllHighLevelCategories(1),
         ]);
     }
 
     #[Route('/categories/show-category/{categoryId}', name: 'app_book_category_show_one')]
-    public function showCategory(int $categoryId): Response
+    public function showCategory(int $categoryId,Request $request): Response
     {
+        if ('POST' === $request->getMethod())
+        {
+            return $this->render('book_category/get-category.html.twig',[
+                'category' => $this->categoryEntityService->getCategoryWithFilterBooks($request,$categoryId)
+            ]);
+        }
+
         return $this->render('book_category/get-category.html.twig',[
            'category' => $this->bookCategoryRepository->getBooksAndSubcategoryByCategory($categoryId)
         ]);

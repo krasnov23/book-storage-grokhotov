@@ -3,7 +3,7 @@
 {% block title %}Книжный магазин - Все категории{% endblock %}
 
 {% block body %}
-<main>
+<main class="text-center">
     {% for category in categories %}
         <div class="get-category-block w-75 text-center admin-button pt-5 pb-5 mt-3 mb-3">
             <a class="h3 category-link" href="{{ path('app_book_category_show_one', { categoryId :category.id}) }}">{{ category.title }}</a>

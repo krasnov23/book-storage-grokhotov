@@ -3,21 +3,30 @@
 namespace App\Service;
 
 use App\Repository\BookEntityRepository;
+use App\Repository\SettingsRepository;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
 class BookEntityService
 {
-    private const PAGE_LIMIT = 5;
 
-    public function __construct(private BookEntityRepository $bookEntityRepository)
+    public function __construct(private BookEntityRepository $bookEntityRepository,
+                                private SettingsRepository $settingsRepository)
     {
     }
 
     public function getBooksByPage(int $page): array
     {
-        $offset = max($page - 1,0) * self::PAGE_LIMIT;
+        $settings = $this->settingsRepository->findOneBy(['nameSelector' => 'settings']);
+        $pageLimit = 5;
 
-        $paginator = $this->bookEntityRepository->bookPagination($offset,self::PAGE_LIMIT);
+        if ($settings)
+        {
+            $pageLimit = $settings->getAmountBookPagination();
+        }
+
+        $offset = max($page - 1,0) * $pageLimit;
+
+        $paginator = $this->bookEntityRepository->bookPagination($offset,$pageLimit);
 
         $paginatorArray = [];
 
@@ -26,10 +35,37 @@ class BookEntityService
             $paginatorArray[] = $item;
         }
 
-        $total = ceil(count($paginatorArray) / self::PAGE_LIMIT);
+        $total = ceil(count($paginatorArray) / $pageLimit);
 
         return [$paginatorArray,$total];
     }
+
+    public function getBooksByCategoryAndPages(int $id, int $page): array
+    {
+        $settings = $this->settingsRepository->findOneBy(['nameSelector' => 'settings']);
+        $pageLimit = 5;
+
+        if ($settings)
+        {
+            $pageLimit = $settings->getAmountBookPagination();
+        }
+
+        $offset = max($page - 1,0) * $pageLimit;
+
+        $paginator = $this->bookEntityRepository->booksByCategoryAndPages($id,$offset,$pageLimit);
+
+        $paginatorArray = [];
+
+        foreach ($paginator as $item)
+        {
+            $paginatorArray[] = $item;
+        }
+
+        $totalPages = ceil(count($paginatorArray) / $pageLimit);
+
+        return [$paginatorArray,$totalPages];
+    }
+
 
 
 }

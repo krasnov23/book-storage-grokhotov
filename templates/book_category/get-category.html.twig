@@ -5,16 +5,37 @@
 {% block body %}
 <main class="text-center">
     <p class="h2">{{ category }}</p>
-    {% if category.categoryChild|length > 0 %}
+    <p class="h2">Фильтры:</p>
+    {% if category %}
+    {% if category.categoryChild|length > 0%}
         {% for childCategory in category.categoryChild %}
-        <a class="h4 pb-5" href="{{ path('app_book_category_show_one',{ categoryId: childCategory.Id }) }}">{{ childCategory }}</a>
+        <a class="h4 pb-5" href="{{ path('app_guest_book_by_category',{ categoryId:childCategory.Id, pageNumber:1 }) }}">{{ childCategory }}</a>
         <br>
         {% endfor %}
     {% else %}
+        <form method="post" class="mb-5">
+            <label for="exampleFormControlInput1" class="form-label">Название книги</label>
+            <input name="book-name" class="form-control form-control-lg w-75 book-add-field" type="text" placeholder="" aria-label=".form-control-lg example">
+            <label for="exampleFormControlInput1" class="form-label">Имя автора</label>
+            <input name="author-name" class="form-control form-control-lg w-75 book-add-field" type="text" placeholder="" aria-label=".form-control-lg example">
+            <label for="exampleFormControlInput1" class="form-label">Статус книги</label>
+            <select name="book-status" class="form-select w-75 book-add-field" aria-label="Default select example">
+                <option selected></option>
+                <option value="PUBLISH">PUBLISH</option>
+                <option value="MEAP">MEAP</option>
+            </select>
+            <div>
+                <button type="submit" class="btn btn-outline-warning btn-lg admin-button w-50 mb-2 mt-2">Применить фильтр</button>
+            </div>
+        </form>
+
         {% for book in category.books %}
-        <a class="h4" href="{{ path('app_guest_book_page',{ book:book.id }) }}">{{ book }}</a>
+        <a class="h4" href="{{ path('app_guest_book_page',{ bookId:book.id }) }}">{{ book }}</a>
         <br>
         {% endfor %}
+    {% endif %}
+    {% else %}
+    <p class="h3">По данному фильтру пока нет категорий или книг</p>
     {% endif %}
 </main>
 {% endblock %}
