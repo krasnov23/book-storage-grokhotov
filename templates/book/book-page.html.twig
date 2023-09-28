@@ -18,8 +18,14 @@
         <h2>{{ book.name }}</h2>
         <p>{{ book.amountOfPages }}</p>
         <p class="mb-3">{{ book.isbn }}</p>
+        <div class="mb-4">
+            <p class="mb-3 h2">Категория книги:</p>
+            {% for category in book.categories %}
+                <a href="{{ path('app_book_category_show_one',{categoryId: category.id}) }}" class="mb-2 h4">{{ category }}</a>
+            {% endfor %}
+        </div>
         {% if sameCategoriesBooks != [] %}
-        <p class="h3">Книги из аналогичных категорий:</p>
+            <p class="h3">Книги из аналогичных категорий:</p>
         {% for sameBook in sameCategoriesBooks %}
             <a href="{{ path('app_guest_book_page',{bookId:sameBook.id}) }}">{{ sameBook.name }}</a>
             <br>

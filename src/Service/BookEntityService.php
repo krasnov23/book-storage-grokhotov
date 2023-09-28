@@ -21,7 +21,7 @@ class BookEntityService
 
         if ($settings)
         {
-            $pageLimit = $settings->getAmountBookPagination();
+            $pageLimit = $settings->getAmountBookPagination() ?? 5;
         }
 
         $offset = max($page - 1,0) * $pageLimit;
@@ -47,7 +47,7 @@ class BookEntityService
 
         if ($settings)
         {
-            $pageLimit = $settings->getAmountBookPagination();
+            $pageLimit = $settings->getAmountBookPagination() ?? 5;
         }
 
         $offset = max($page - 1,0) * $pageLimit;
