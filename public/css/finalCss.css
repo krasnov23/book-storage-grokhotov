@@ -96,10 +96,6 @@ body{
 
 @media (max-width:768px) {
 
-    .admin-content-block{
-        margin-top: 6%;
-    }
-
     .header-text{
         padding-top: 40px;
     }
@@ -110,12 +106,16 @@ body{
     }
 
     .block-with-book-description{
-        padding-bottom: 400px;
+        padding-bottom: 120px;
     }
 
     .book-image-user-book-page{
         height: 400px;
         width: 70%;
+    }
+
+    .books-pages-switchers{
+        margin-left: 5%;
     }
 }
 

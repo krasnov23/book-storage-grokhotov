@@ -9,27 +9,31 @@
         <a class="btn btn-outline-warning btn-lg admin-button w-75" href="{{ path('app_admin_books') }}">Админ Панель</a>
     </div>
     {% endif %}
-    <div class="admin-content-block mt-2 pt-5 text-center row ms-5 me-5">
+    <div class="admin-content-block text-center ms-5 me-5">
     {% for book in books %}
+        <div class="one-book-block row">
         {% if book.image|slice(0,8) == 'https://' or book.image|slice(0,7) == 'http://' %}
-            <div class="col-lg-5 col-md-5 mb-5 ps-5 pe-5">
+            <div class="col-lg-5 col-md-5 mb-5 mt-2 ps-5 pe-5">
                 <img class="book-image" src="{{ book.image }}" alt="обложка">
             </div>
         {% else %}
-            <div class="col-lg-5 col-md-5 mb-5 ps-5 pe-5">
+            <div class="col-lg-5 col-md-5 mb-5 mt-2 ps-5 pe-5">
                 <img class="book-image" src="{{ book_image ~ book.image }}" alt="обложка">
             </div>
         {% endif %}
-        <div class="col-lg-7 col-md-7 block-with-book-description pt-4">
-            <h2><a href="{{ path('app_guest_book_page',{ bookId:book.id}) }}">{{ book.name }}</a></h2>
-            <p>{{ book.amountOfPages }}</p>
-            <p>{{ book.isbn }}</p>
+            <div class="col-lg-7 col-md-7 block-with-book-description pt-4">
+                <h2><a href="{{ path('app_guest_book_page',{ bookId:book.id}) }}">{{ book.name }}</a></h2>
+                <p>{{ book.amountOfPages }}</p>
+                <p>{{ book.isbn }}</p>
+            </div>
         </div>
     {% endfor %}
-    <p class="">{{ lastPage }}</p>
     </div>
     <div class="btn-toolbar mt-5 mb-5 d-flex" role="toolbar" aria-label="Toolbar with button groups">
         <div class="btn-group mr-2 text-center center-block books-pages-switchers" role="group" aria-label="First group">
+            {% if (currentPage == lastPage) %}
+            <a class="btn btn-warning btn-lg " href="{{ path('app_books_by_pages',{pageNumber: 1 }) }}">В начало</a>
+            {% endif %}
             {% if (currentPage > 1) %}
             <a class="btn btn-warning btn-lg " href="{{ path('app_books_by_pages',{pageNumber: currentPage - 1 }) }}"><<<</a>
             {% endif %}
