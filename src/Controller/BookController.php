@@ -5,27 +5,20 @@ namespace App\Controller;
 use App\Entity\BookCategoryEntity;
 use App\Entity\BookEntity;
 use App\Form\BookEntityType;
-use App\Repository\BookCategoryEntityRepository;
 use App\Repository\BookEntityRepository;
 use App\Service\BookEntityService;
-use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\PersistentCollection;
-use ErrorException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\String\Slugger\SluggerInterface;
 
 class BookController extends AbstractController
 {
     public function __construct(private BookEntityRepository $bookEntityRepository,
-                                private BookEntityService    $bookService,
-                                private SluggerInterface     $slugger,
-                                private Filesystem $filesystem)
+                                private BookEntityService    $bookService)
     {
     }
 
@@ -111,24 +104,9 @@ class BookController extends AbstractController
             // bookimage - HttpFoundation\UploadedFile
             $bookImage = $form->get('image')->getData();
 
-
             if ($bookImage)
             {
-                $originalFileName = pathinfo($bookImage->getClientOriginalName(),PATHINFO_FILENAME);
-
-                $sluggerFileName = $this->slugger->slug($originalFileName);
-
-                $newFileName = $sluggerFileName . '-' . uniqid() . '.' . $bookImage->guessExtension();
-
-                try{
-                    $bookImage->move(
-                        $this->container->get('parameter_bag')->get('books_image_directory'),
-                        $newFileName
-                    );
-                } catch (FileException $exception)
-                {
-                }
-
+                $newFileName = $this->bookService->addNewBookImage($bookImage);
                 $newBook->setImage($newFileName);
             }
 
@@ -171,23 +149,7 @@ class BookController extends AbstractController
 
             if ($bookImage)
             {
-                $originalFileName = pathinfo($bookImage->getClientOriginalName(),PATHINFO_FILENAME);
-
-                $sluggerFileName = $this->slugger->slug($originalFileName);
-
-                $newFileName = $sluggerFileName . '-' . uniqid() . '.' . $bookImage->guessExtension();
-
-                try{
-                    $bookImage->move(
-                        $this->container->get('parameter_bag')->get('books_image_directory'),
-                        $newFileName
-                    );
-                } catch (FileException $exception)
-                {
-                }
-
-                $this->filesystem->remove($this->getParameter('books_image_directory') . DIRECTORY_SEPARATOR . $bookOldImage);
-
+                $newFileName = $this->bookService->editBookImage($bookImage,$bookOldImage);
                 $book->setImage($newFileName);
 
             }else{
@@ -220,14 +182,7 @@ class BookController extends AbstractController
     #[Route('/admin/books/delete-image/{book}', name: 'app_admin_books_image_delete')]
     public function deleteBookPhoto(BookEntity $book): Response
     {
-        $bookImage = $book->getImage();
-
-        if ($bookImage)
-        {
-            $this->filesystem->remove($this->getParameter('books_image_directory') . DIRECTORY_SEPARATOR . $bookImage);
-        }
-
-        $book->setImage(null);
+        $book = $this->bookService->deleteBookImage($book);
 
         $this->bookEntityRepository->save($book,true);
 
