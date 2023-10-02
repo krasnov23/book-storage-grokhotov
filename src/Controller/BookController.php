@@ -9,7 +9,6 @@ use App\Repository\BookEntityRepository;
 use App\Service\BookEntityService;
 use Doctrine\ORM\PersistentCollection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -172,6 +171,8 @@ class BookController extends AbstractController
     #[Route('/admin/books/delete/{book}', name: 'app_admin_books_delete')]
     public function deleteBook(BookEntity $book): Response
     {
+        $book = $this->bookService->deleteBookImage($book);
+
         $this->bookEntityRepository->remove($book,true);
 
         $this->addFlash('success','Книга Успешно Удалена');
