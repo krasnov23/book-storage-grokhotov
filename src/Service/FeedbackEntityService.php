@@ -11,7 +11,7 @@ use Symfony\Component\Mailer\Exception\TransportException;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 
-class FeedbackService
+class FeedbackEntityService
 {
     public function __construct(private FeedbackEntityRepository $feedbackRepository,
                                 private MailerInterface $mailer,
@@ -35,8 +35,7 @@ class FeedbackService
             ->from($feedback->getEmail())
             ->to($senderEmailSettings  ?? 'grokhotov@studio.com')
             ->subject("Новый отзыв")
-            ->text("{$feedback->getEmail()} с номером {$feedback->getPhoneNumber()}
-                 написал вам: {$feedback->getMessage()}");
+            ->text("{$feedback->getEmail()} с номером {$feedback->getPhoneNumber()} написал вам: {$feedback->getMessage()}");
 
         try{
             $this->mailer->send($email);

@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\BookCategoryEntity;
 use App\Entity\BookEntity;
+use App\Entity\Category;
 use App\Models\QueryBuilder;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
@@ -90,7 +91,10 @@ class BookCategoryEntityRepository extends ServiceEntityRepository
         return $category->getQuery()->getOneOrNullResult();
     }
 
-
+    public function findParentCategory(array $category): BookCategoryEntity
+    {
+        return $this->findOneBy($category);
+    }
 
 
 

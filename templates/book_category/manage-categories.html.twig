@@ -7,7 +7,7 @@
     {{ include('book/_admin_panel.html.twig') }}
     <div class="col-lg-8 col-md-8 col-sm-12 admin-content-block pt-4 text-center row">
         <div class="mb-5">
-            <a class="btn btn-outline-warning btn-lg admin-button w-75" href="{{ path('app_book_add_category') }}">Добавить категорию</a>
+            <a class="btn btn-outline-warning btn-lg admin-button w-75" href="{{ path('app_book_add_category_form') }}">Добавить категорию</a>
         </div>
         {% for category in categories %}
         <div class="block-with-book-description mb-5 gap-2">

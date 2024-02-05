@@ -5,7 +5,7 @@ namespace App\Controller;
 use App\Entity\FeedbackEntity;
 use App\Form\FeedbackEntityType;
 use App\Repository\FeedbackEntityRepository;
-use App\Service\FeedbackService;
+use App\Service\FeedbackEntityService;
 use DateTime;
 use Doctrine\Common\Collections\Criteria;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class FeedbackController extends AbstractController
 {
     public function __construct(private FeedbackEntityRepository $feedbackRepository,
-                                private FeedbackService $feedbackService)
+                                private FeedbackEntityService    $feedbackService)
     {
     }
 

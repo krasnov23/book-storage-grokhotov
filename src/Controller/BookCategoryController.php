@@ -27,18 +27,19 @@ class BookCategoryController extends AbstractController
         ]);
     }
 
-    #[Route('/categories/show-category/{categoryId}', name: 'app_book_category_show_one')]
-    public function showCategory(int $categoryId,Request $request): Response
+    #[Route('/categories/show-books-by-category/{categoryId}', name: 'app_book_category_show_one',methods: ['GET'])]
+    public function showCategory(int $categoryId): Response
     {
-        if ('POST' === $request->getMethod())
-        {
-            return $this->render('book_category/get-category.html.twig',[
-                'category' => $this->categoryEntityService->getCategoryWithFilterBooks($request,$categoryId)
-            ]);
-        }
-
         return $this->render('book_category/get-category.html.twig',[
            'category' => $this->bookCategoryRepository->getBooksAndSubcategoryByCategory($categoryId)
+        ]);
+    }
+
+    #[Route('/categories/show-books-by-category/{categoryId}', name: 'app_book_category_show_one_with_filters',methods: ['POST'])]
+    public function showCategoryWithFilterBook(int $categoryId,Request $request): Response
+    {
+        return $this->render('book_category/get-category.html.twig',[
+            'category' => $this->categoryEntityService->getCategoryWithFilterBooks($request,$categoryId)
         ]);
     }
 
@@ -51,38 +52,40 @@ class BookCategoryController extends AbstractController
     }
 
 
-    #[Route('/admin/add-category', name: 'app_book_add_category')]
-    public function addCategory(Request $request): Response
+    #[Route('/admin/add-category', name: 'app_book_add_category_form',methods: ['GET'])]
+    public function renderCategories(): Response
     {
-
-        if ('POST' === $request->getMethod()) {
-            $addCategory = $this->categoryEntityService->addCategory($request);
-            $this->addFlash($addCategory[0],$addCategory[1]);
-            $this->redirectToRoute($addCategory[2]);
-        }
-
         return $this->render('book_category/add-category.html.twig',
         [
          'categories' => $this->bookCategoryRepository->getAllHighLevelCategories(1)
          ]);
     }
 
-    #[Route('/admin/edit-category/{category}', name: 'app_book_edit_category')]
-    public function editCategory(BookCategoryEntity $category,Request $request): Response
+    #[Route('/admin/add-category', name: 'app_book_add_category',methods: ['POST'])]
+    public function addCategory(Request $request): Response
     {
+        $addCategory = $this->categoryEntityService->addCategory($request);
+        $this->addFlash($addCategory[0],$addCategory[1]);
+        return $this->redirectToRoute($addCategory[2]);
+    }
 
-        if ('POST' === $request->getMethod())
-        {
-            $editCategory = $this->categoryEntityService->editCategory($request,$category);
-            $this->addFlash($editCategory[0],$editCategory[1]);
-            $this->redirectToRoute($editCategory[2]);
-        }
-
+    #[Route('/admin/edit-category/{category}', name: 'app_book_edit_category',methods: ['GET'])]
+    public function editCategoryForm(BookCategoryEntity $category): Response
+    {
         return $this->render('book_category/edit-category.html.twig',[
             'categories' => $this->bookCategoryRepository->getAllHighLevelCategories(1),
             'currentCategory' => $category
         ]);
     }
+
+    #[Route('/admin/edit-category/{category}', name: 'app_book_edit_category_post',methods: ['POST','PUT'])]
+    public function editCategory(BookCategoryEntity $category,Request $request): Response
+    {
+        $editCategory = $this->categoryEntityService->editCategory($request,$category);
+        $this->addFlash($editCategory[0],$editCategory[1]);
+        return $this->redirectToRoute($editCategory[2]);
+    }
+
 
     #[Route('/admin/delete-category/{category}', name: 'app_book_delete_category')]
     public function deleteCategory(BookCategoryEntity $category): Response

@@ -5,44 +5,99 @@ namespace App\Service;
 use App\Entity\BookEntity;
 use App\Repository\BookEntityRepository;
 use App\Repository\SettingsRepository;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Doctrine\ORM\PersistentCollection;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\String\Slugger\SluggerInterface;
-use TypeError;
+
 
 class BookEntityService
 {
 
-    public function __construct(private string $booksImageDirectory,
-                                private BookEntityRepository $bookEntityRepository,
+    public function __construct(private BookEntityRepository $bookEntityRepository,
                                 private SettingsRepository $settingsRepository,
-                                private SluggerInterface $slugger,
-                                private Filesystem $filesystem,
+                                private BookImageService $bookImageService
 
     )
     {
     }
 
+    public function addBook(BookEntity $newBook,UploadedFile $bookImage = null)
+    {
+
+        $categories = $newBook->getCategories()->toArray();
+
+        foreach ($categories as $category)
+        {
+            $newBook->addCategory($category);
+        }
+
+        if ($bookImage)
+        {
+            $newFileName = $this->bookImageService->addNewBookImage($bookImage);
+            $newBook->setImage($newFileName);
+        }
+
+        $this->bookEntityRepository->save($newBook,true);
+    }
+
+    public function editBook(BookEntity $book,string $bookOldImage = null,UploadedFile $bookImage = null)
+    {
+        /**
+         * @var PersistentCollection $categories
+         */
+        $categoriesData = $book->getCategories();
+
+        $categories = $categoriesData->toArray();
+
+        foreach ($categories as $category)
+        {
+            $book->addCategory($category);
+        }
+
+        if ($bookImage)
+        {
+            $newFileName = $this->bookImageService->editBookImage($bookImage,$bookOldImage);
+            $book->setImage($newFileName);
+        }else{
+            $book->setImage($bookOldImage);
+        }
+
+        $this->bookEntityRepository->save($book,true);
+    }
+
     public function getBooksByPage(int $page): array
     {
+        // Ищет заданы ли параметры настроек
         $settings = $this->settingsRepository->findOneBy(['nameSelector' => 'settings']);
+
         $pageLimit = 5;
 
         if ($settings)
         {
+            // В случае если в настройках в кабинете админа заданы параметры кол-ва книг на страницу, то берет их
             $pageLimit = $settings->getAmountBookPagination() ?? 5;
         }
 
         $offset = max($page - 1,0) * $pageLimit;
 
+        // вывод определенного количества книг
         $paginator = $this->bookEntityRepository->bookPagination($offset,$pageLimit);
 
-        $totalAmountOfBooks = count($paginator);
+        $books = [];
 
+        foreach ($paginator as $item)
+        {
+            $books[] = $item;
+        }
+
+        // количество книг всего
+        $totalAmountOfBooks = count($books);
+
+        // последняя страница
         $total = ceil($totalAmountOfBooks / $pageLimit);
 
-        return [$paginator,$total];
+        // книги на действующей странице, всего страниц
+        return [$books,$total];
     }
 
     public function getBooksByCategoryAndPages(int $id, int $page): array
@@ -59,70 +114,19 @@ class BookEntityService
 
         $paginator = $this->bookEntityRepository->booksByCategoryAndPages($id,$offset,$pageLimit);
 
+        $books = [];
+
+        foreach ($paginator as $item)
+        {
+            $books[] = $item;
+        }
+
         $totalPages = ceil(count($paginator) / $pageLimit);
 
-        return [$paginator,$totalPages];
+        return [$books,$totalPages];
     }
 
-    public function addNewBookImage(UploadedFile $bookImage): string
-    {
-        $originalFileName = pathinfo($bookImage->getClientOriginalName(),PATHINFO_FILENAME);
 
-        $sluggerFileName = $this->slugger->slug($originalFileName);
-
-        $newFileName = $sluggerFileName . '-' . uniqid() . '.' . $bookImage->guessExtension();
-
-        try{
-            $bookImage->move(
-                $this->booksImageDirectory,
-                $newFileName
-            );
-        } catch (FileException $exception)
-        {
-        }
-
-        return $newFileName;
-    }
-
-    public function editBookImage(UploadedFile $bookImage,?string $bookOldImage): string
-    {
-        $originalFileName = pathinfo($bookImage->getClientOriginalName(),PATHINFO_FILENAME);
-
-        $sluggerFileName = $this->slugger->slug($originalFileName);
-
-        $newFileName = $sluggerFileName . '-' . uniqid() . '.' . $bookImage->guessExtension();
-
-        try{
-            $bookImage->move(
-                $this->booksImageDirectory,
-                $newFileName
-            );
-        } catch (FileException $exception)
-        {
-        }
-
-        if ($bookOldImage)
-        {
-            $this->filesystem->remove($this->booksImageDirectory . DIRECTORY_SEPARATOR . $bookOldImage);
-        }
-
-
-        return $newFileName;
-    }
-
-    public function deleteBookImage(BookEntity $book): BookEntity
-    {
-        $bookImage = $book->getImage();
-
-        if ($bookImage)
-        {
-            $this->filesystem->remove($this->booksImageDirectory . DIRECTORY_SEPARATOR . $bookImage);
-        }
-
-        $book->setImage(null);
-
-        return $book;
-    }
 
 
 

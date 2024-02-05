@@ -21,13 +21,12 @@ class SettingsController extends AbstractController
     public function index(Request $request): Response
     {
         $settings = $this->settingsRepository->findOneBy(['nameSelector' => 'settings']);
-        $newSettings = new Settings();
 
         if ($settings)
         {
             $form = $this->createForm(SettingsType::class,$settings);
         }else{
-            $form = $this->createForm(SettingsType::class,$newSettings);
+            $form = $this->createForm(SettingsType::class,new Settings());
         }
 
         $form->handleRequest($request);

@@ -42,6 +42,7 @@ class BookEntityRepository extends ServiceEntityRepository
         }
     }
 
+
     public function bookPagination(int $offset,int $limit)
     {
         $query = $this->createQueryBuilder('b')
@@ -52,8 +53,9 @@ class BookEntityRepository extends ServiceEntityRepository
         return new Paginator($query,false);
     }
 
-    public function booksByCategoryAndPages(int $categoryId,int $offset,int $limit): Paginator
+    public function booksByCategoryAndPages(int $categoryId,int $offset,int $limit)
     {
+
         $query = $this->createQueryBuilder('b')
             ->addSelect('c')
             ->leftJoin('b.categories','c')

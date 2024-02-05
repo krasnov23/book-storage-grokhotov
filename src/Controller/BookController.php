@@ -2,14 +2,12 @@
 
 namespace App\Controller;
 
-use App\Entity\BookCategoryEntity;
 use App\Entity\BookEntity;
 use App\Form\BookEntityType;
 use App\Repository\BookEntityRepository;
 use App\Service\BookEntityService;
-use Doctrine\ORM\PersistentCollection;
+use App\Service\BookImageService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -17,7 +15,8 @@ use Symfony\Component\Routing\Annotation\Route;
 class BookController extends AbstractController
 {
     public function __construct(private BookEntityRepository $bookEntityRepository,
-                                private BookEntityService    $bookService)
+                                private BookEntityService    $bookService,
+                                private BookImageService     $bookImageService)
     {
     }
 
@@ -83,33 +82,8 @@ class BookController extends AbstractController
 
         if ($form->isSubmitted() and $form->isValid())
         {
-            /**
-             * @var BookEntity $newBook
-             */
-            $newBook = $form->getData();
-
-            $categories = $form->get('categories')->getData()->toArray();
-
-            foreach ($categories as $category)
-            {
-                /**
-                 * @var BookCategoryEntity $category
-                 */
-                //$category->addBook($newBook);
-
-                $newBook->addCategory($category);
-            }
-
-            // bookimage - HttpFoundation\UploadedFile
-            $bookImage = $form->get('image')->getData();
-
-            if ($bookImage)
-            {
-                $newFileName = $this->bookService->addNewBookImage($bookImage);
-                $newBook->setImage($newFileName);
-            }
-
-            $this->bookEntityRepository->save($newBook,true);
+            // Отправляем данные формы и загруженную картинку в наш микросервис если такая есть
+            $this->bookService->addBook($form->getData(),$form->get('image')->getData());
 
             $this->addFlash('success','Книга Успешно Добавлена');
 
@@ -131,31 +105,7 @@ class BookController extends AbstractController
 
         if ($form->isSubmitted() and $form->isValid())
         {
-            /**
-             * @var PersistentCollection $categories
-             */
-            $categoriesData = $form->get('categories')->getData();
-
-            $categories = $categoriesData->toArray();
-
-            foreach ($categories as $category)
-            {
-                $book->addCategory($category);
-            }
-
-            /** @var UploadedFile $bookImage */
-            $bookImage = $form->get('image')->getData();
-
-            if ($bookImage)
-            {
-                $newFileName = $this->bookService->editBookImage($bookImage,$bookOldImage);
-                $book->setImage($newFileName);
-
-            }else{
-                $book->setImage($bookOldImage);
-            }
-
-            $this->bookEntityRepository->save($book,true);
+            $this->bookService->editBook($form->getData(),$bookOldImage,$form->get('image')->getData());
 
             $this->addFlash('success','Книга Успешно Изменена');
 
@@ -171,7 +121,7 @@ class BookController extends AbstractController
     #[Route('/admin/books/delete/{book}', name: 'app_admin_books_delete')]
     public function deleteBook(BookEntity $book): Response
     {
-        $book = $this->bookService->deleteBookImage($book);
+        $book = $this->bookImageService->deleteBookImage($book);
 
         $this->bookEntityRepository->remove($book,true);
 
@@ -183,7 +133,7 @@ class BookController extends AbstractController
     #[Route('/admin/books/delete-image/{book}', name: 'app_admin_books_image_delete')]
     public function deleteBookPhoto(BookEntity $book): Response
     {
-        $book = $this->bookService->deleteBookImage($book);
+        $book = $this->bookImageService->deleteBookImage($book);
 
         $this->bookEntityRepository->save($book,true);
 

@@ -5,7 +5,7 @@
 {% block body %}
 <main>
     {% if app.user and 'ROLE_ADMIN' in app.user.getroles()  %}
-    <div class="text-center">
+    <div class="text-center mb-3">
         <a class="btn btn-outline-warning btn-lg admin-button w-75" href="{{ path('app_admin_books') }}">Админ Панель</a>
     </div>
     {% endif %}
