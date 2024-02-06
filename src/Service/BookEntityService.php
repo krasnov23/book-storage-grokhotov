@@ -90,11 +90,9 @@ class BookEntityService
             $books[] = $item;
         }
 
-        // количество книг всего
-        $totalAmountOfBooks = count($books);
 
         // последняя страница
-        $total = ceil($totalAmountOfBooks / $pageLimit);
+        $total = ceil(count($paginator) / $pageLimit);
 
         // книги на действующей странице, всего страниц
         return [$books,$total];
